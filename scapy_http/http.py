@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: UTF-8 -*-
-# Author : Steeve Barbeau, Luca Invernizzi
-# Author of the modifications: Jarosław Wieczorek 
+# Author : Steeve Barbeau, Luca Invernizzi, Jarosław Wieczorek
 # This program is published under a GPLv2 license
 
 import re
@@ -16,11 +15,16 @@ def _canonicalize_header(name):
     return name.strip().lower()
 
 def _parse_headers(s):
-    headers = s.split(b"\r\n")
+    try:
+        headers = s.split("\r\n")
+    except TypeError as err:
+        #print(err)
+        headers = s.split(b"\r\n")
+
     headers_found = {}
     for header_line in headers:
         try:
-            key, value = header_line.split(b':', 1)
+            key, value = header_line.split(':', 1)
         except:
             continue
         headers_found[_canonicalize_header(key)] = header_line.strip()
@@ -39,7 +43,7 @@ def _parse_headers_and_body(s):
     except:
         headers = s
         body = ''
-    first_line, headers = headers.split(b"\r\n", 1)
+    first_line, headers = headers.split("\r\n", 1)
     return first_line.strip(), _parse_headers(headers), body
 
 
@@ -49,7 +53,7 @@ def _dissect_headers(obj, s):
         HTTP packet, and the body
     '''
     first_line, headers, body = _parse_headers_and_body(s)
-    obj.setfieldval(b'Headers', b'\r\n'.join(list(headers.values())))
+    obj.setfieldval('Headers', '\r\n'.join(list(headers.values())))
     for f in obj.fields_desc:
         canonical_name = _canonicalize_header(f.name)
         try:
@@ -62,7 +66,7 @@ def _dissect_headers(obj, s):
     if headers:
         # Kept for compatibility
         obj.setfieldval(
-            b'Additional-Headers', b'\r\n'.join(list(headers.values())) + '\r\n')
+            'Additional-Headers', '\r\n'.join(list(headers.values())) + '\r\n')
     return first_line, body
 
 
@@ -107,7 +111,16 @@ def _self_build(obj, field_pos_list=None):
         else:
           separator = newline
         # Add the field into the packet
-        p = f.addfield(obj, p, val + separator)
+
+        #print("p: ", p, type(p))
+        #print("val: ", val, type(val))
+        #print("separator: ", separator, type(separator))
+        try:
+            p = f.addfield(obj, p, val + separator)
+        except TypeError as err:
+            #print("Secodn typerror :", err)
+            p = f.addfield(obj, p, str(val) + str(separator))
+            #print(p)
     # The packet might be empty, and in that case it should stay empty.
     if p:
       # Add an additional line after the last header
