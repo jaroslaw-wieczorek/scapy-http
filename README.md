@@ -198,3 +198,4 @@ for p in packets:
 ## Authors
 * Steeve Barbeau  ( http://www.sbarbeau.fr )
 * Luca Invernizzi ( http://lucainvernizzi.net )
+* Jarosław Wieczorek ( jaroslaw.wieczorek@sealcode.org )
