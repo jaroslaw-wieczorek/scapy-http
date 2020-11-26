@@ -1,3 +1,6 @@
+
+Depreceted scapy 2.4.3+ has native support for http. 
+
 Scapy-http
 ==========
 
